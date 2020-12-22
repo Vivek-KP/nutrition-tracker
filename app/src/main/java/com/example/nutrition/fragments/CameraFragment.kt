@@ -6,56 +6,107 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.nutrition.R
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.media.Image
+import android.os.Build
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Environment
+import android.provider.MediaStore
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.FileProvider
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.label.ImageLabeling
+import com.google.mlkit.vision.label.automl.AutoMLImageLabelerLocalModel
+import com.google.mlkit.vision.label.automl.AutoMLImageLabelerOptions
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_camera.*
+import org.w3c.dom.Text
+import java.io.File
+import java.util.jar.Manifest
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+private const val REQUEST_CODE = 42
+private const val FILE_NAME = "photo.jpg"
+private lateinit var photoFile: File
 
-/**
- * A simple [Fragment] subclass.
- * Use the [AssignFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class CameraFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-
-        }
-    }
+    val localModel = AutoMLImageLabelerLocalModel.Builder()
+        .setAssetFilePath("mode/manifest.json")
+        .build()
+    val autoMLImageLabelerOptions = AutoMLImageLabelerOptions.Builder(localModel)
+        .setConfidenceThreshold(0.0F)
+        .build()
+    val labeler = ImageLabeling.getClient(autoMLImageLabelerOptions)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_assign, container, false)
+
+        val view: View = inflater.inflate(R.layout.fragment_camera, container, false)
+        val choose: Button = view.findViewById(R.id.button)
+        val localModel = AutoMLImageLabelerLocalModel.Builder()
+            .setAssetFilePath("mode/manifest.json")
+            .build()
+        val autoMLImageLabelerOptions = AutoMLImageLabelerOptions.Builder(localModel)
+            .setConfidenceThreshold(0.0F)
+            .build()
+        val labeler = ImageLabeling.getClient(autoMLImageLabelerOptions)
+
+        choose.setOnClickListener {
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            photoFile = getPhotoFile(FILE_NAME)
+            val fileProvider =
+                FileProvider.getUriForFile(
+                    activity!!,
+                    "com.example.nutrition.fileprovider",
+                    photoFile
+                )
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
+
+            if (intent.resolveActivity(activity!!.packageManager) != null) {
+                startActivityForResult(intent, REQUEST_CODE)
+            } else {
+                Toast.makeText(activity!!, "unable to open", Toast.LENGTH_SHORT).show()
+            }
+        }
+        return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment AssignFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            CameraFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun getPhotoFile(fileName: String): File {
+        val storageDirectory = activity!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(fileName, ".jpg", storageDirectory)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            val taken = BitmapFactory.decodeFile(photoFile.absolutePath)
+            imageView2.setImageBitmap(taken)
+            val image = InputImage.fromBitmap(taken, 0)
+            val result: TextView = activity!!.findViewById(R.id.textView)
+
+            labeler.process(image)
+                .addOnSuccessListener { labels ->
+                    for (label in labels) {
+                        val text = label.text
+                        val confidence = label.confidence
+                        val index = label.index
+                        result.append(text + "  " + confidence)
+                    }
                 }
-            }
+                .addOnFailureListener { e ->
+                }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
     }
 }
+
+

@@ -32,31 +32,30 @@ import java.io.File
 import java.util.jar.Manifest
 
 
-
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-         val homeFragment = HomeFragment()
+        val homeFragment = HomeFragment()
         val assignFragment = AssignFragment()
         val cameraFragment = CameraFragment()
         val userFragment = UserFragment()
         makeCurrentFrackment(homeFragment)
         bottomnav.setOnNavigationItemSelectedListener {
-            when(it.itemId){
-                R.id.ic_home-> makeCurrentFrackment(homeFragment)
-                R.id.ic_assignment-> makeCurrentFrackment(assignFragment)
-                R.id.ic_camera-> makeCurrentFrackment(cameraFragment)
-                R.id.ic_account-> makeCurrentFrackment(userFragment)
+            when (it.itemId) {
+                R.id.ic_home -> makeCurrentFrackment(homeFragment)
+                R.id.ic_assignment -> makeCurrentFrackment(assignFragment)
+                R.id.ic_camera -> makeCurrentFrackment(cameraFragment)
+                R.id.ic_account -> makeCurrentFrackment(userFragment)
             }
             true
         }
-        }
+    }
 
     private fun makeCurrentFrackment(fragment: Fragment) =
         supportFragmentManager.beginTransaction().apply {
-            replace(R.id.fl_wrapper,fragment)
+            replace(R.id.fl_wrapper, fragment)
             commit()
         }
 
