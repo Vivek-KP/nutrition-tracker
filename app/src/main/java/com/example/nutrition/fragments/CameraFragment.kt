@@ -32,6 +32,7 @@ import java.io.File
 import java.util.jar.Manifest
 
 private const val REQUEST_CODE = 42
+private const val REQUEST_CODE_G = 43
 private const val FILE_NAME = "photo.jpg"
 private lateinit var photoFile: File
 
@@ -52,6 +53,7 @@ class CameraFragment : Fragment() {
 
         val view: View = inflater.inflate(R.layout.fragment_camera, container, false)
         val choose: Button = view.findViewById(R.id.button)
+        val gChoose: Button = view.findViewById(R.id.gButton)
         val localModel = AutoMLImageLabelerLocalModel.Builder()
             .setAssetFilePath("mode/manifest.json")
             .build()
@@ -74,8 +76,14 @@ class CameraFragment : Fragment() {
             if (intent.resolveActivity(activity!!.packageManager) != null) {
                 startActivityForResult(intent, REQUEST_CODE)
             } else {
-                Toast.makeText(activity!!, "unable to open", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity!!, "Unable to open", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        gChoose.setOnClickListener {
+            val intent = Intent(Intent.ACTION_PICK)
+            intent.type = "image/*"
+            startActivityForResult(intent, REQUEST_CODE_G)
         }
         return view
     }
@@ -103,10 +111,25 @@ class CameraFragment : Fragment() {
                 }
                 .addOnFailureListener { e ->
                 }
+        } else if (requestCode == REQUEST_CODE_G && resultCode == Activity.RESULT_OK) {
+            val gTaken = data?.data
+            imageView2.setImageURI(gTaken)
+            val gImage = InputImage.fromFilePath(activity!!, gTaken!!)
+            val gResult: TextView = activity!!.findViewById(R.id.textView)
+
+            labeler.process(gImage)
+                .addOnSuccessListener { labels ->
+                    for (label in labels) {
+                        val text = label.text
+                        val confidence = label.confidence
+                        val index = label.index
+                        gResult.append(text + "  " + confidence)
+                    }
+                }
+                .addOnFailureListener { e ->
+                }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
     }
 }
-
-
