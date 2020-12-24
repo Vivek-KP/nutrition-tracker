@@ -1,35 +1,14 @@
 package com.example.nutrition
 
-
-import android.app.Activity
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.media.Image
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
-import androidx.core.content.FileProvider
+import android.view.View
 import androidx.fragment.app.Fragment
 import com.example.nutrition.fragments.AssignFragment
 import com.example.nutrition.fragments.CameraFragment
 import com.example.nutrition.fragments.HomeFragment
 import com.example.nutrition.fragments.UserFragment
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.label.ImageLabeling
-import com.google.mlkit.vision.label.automl.AutoMLImageLabelerLocalModel
-import com.google.mlkit.vision.label.automl.AutoMLImageLabelerOptions
 import kotlinx.android.synthetic.main.activity_main.*
-import org.w3c.dom.Text
-import java.io.File
-import java.util.jar.Manifest
 
 
 class MainActivity : AppCompatActivity() {
@@ -37,6 +16,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        toolbar.setTitle("Nutrition Tracker")
+        setSupportActionBar(toolbar)
+        supportActionBar?.setHomeButtonEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+
         val homeFragment = HomeFragment()
         val assignFragment = AssignFragment()
         val cameraFragment = CameraFragment()

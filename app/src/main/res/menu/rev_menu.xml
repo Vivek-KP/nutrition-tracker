@@ -3,7 +3,6 @@
     <item
         android:id="@+id/ic_home"
         android:icon="@drawable/ic_home"
-
         android:title="Home"/>
     <item
         android:id="@+id/ic_camera"
@@ -13,7 +12,7 @@
     <item
         android:id="@+id/ic_assignment"
         android:icon="@drawable/ic_baseline_assignment"
-        android:title="assignment"/>
+        android:title="Status"/>
     <item
         android:id="@+id/ic_account"
         android:icon="@drawable/ic_baseline_account_circle_24"

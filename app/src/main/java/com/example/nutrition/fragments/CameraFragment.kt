@@ -8,16 +8,10 @@ import android.view.ViewGroup
 import com.example.nutrition.R
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.media.Image
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.FileProvider
@@ -25,11 +19,8 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.automl.AutoMLImageLabelerLocalModel
 import com.google.mlkit.vision.label.automl.AutoMLImageLabelerOptions
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_camera.*
-import org.w3c.dom.Text
 import java.io.File
-import java.util.jar.Manifest
 
 private const val REQUEST_CODE = 42
 private const val REQUEST_CODE_G = 43
@@ -96,9 +87,9 @@ class CameraFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             val taken = BitmapFactory.decodeFile(photoFile.absolutePath)
-            imageView2.setImageBitmap(taken)
+            img_food.setImageBitmap(taken)
             val image = InputImage.fromBitmap(taken, 0)
-            val result: TextView = activity!!.findViewById(R.id.textView)
+            val result: TextView = activity!!.findViewById(R.id.txt_food)
 
             labeler.process(image)
                 .addOnSuccessListener { labels ->
@@ -113,9 +104,9 @@ class CameraFragment : Fragment() {
                 }
         } else if (requestCode == REQUEST_CODE_G && resultCode == Activity.RESULT_OK) {
             val gTaken = data?.data
-            imageView2.setImageURI(gTaken)
+            img_food.setImageURI(gTaken)
             val gImage = InputImage.fromFilePath(activity!!, gTaken!!)
-            val gResult: TextView = activity!!.findViewById(R.id.textView)
+            val gResult: TextView = activity!!.findViewById(R.id.txt_food)
 
             labeler.process(gImage)
                 .addOnSuccessListener { labels ->
