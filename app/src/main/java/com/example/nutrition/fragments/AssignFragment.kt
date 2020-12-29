@@ -14,5 +14,4 @@ class AssignFragment : Fragment() {
     ): View? {
         return view
     }
-
 }

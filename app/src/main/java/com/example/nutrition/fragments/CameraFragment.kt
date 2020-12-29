@@ -100,6 +100,7 @@ class CameraFragment : Fragment() {
                         result.append(text + "  " + confidence)
                     }
                 }
+
                 .addOnFailureListener { e ->
                 }
         } else if (requestCode == REQUEST_CODE_G && resultCode == Activity.RESULT_OK) {
@@ -116,6 +117,7 @@ class CameraFragment : Fragment() {
                         val index = label.index
                         gResult.append(text + "  " + confidence)
                     }
+                    val foodItem = gResult.getText().substring(0, gResult.getText().indexOf(" "))
                 }
                 .addOnFailureListener { e ->
                 }

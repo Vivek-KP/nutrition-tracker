@@ -12,6 +12,15 @@
         <item name="titleTextColor">#000000</item>
     </style>
 
+    <style name="ToolBarThemeRegister" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@android:color/transparent</item>
+        <item name="colorPrimaryDark">@android:color/transparent</item>
+        <item name="titleTextColor">#000000</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textColorSecondary">#000000</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
     <style name="Widget.BottomNavigationView" parent="Widget.Design.BottomNavigationView">
         <item name="android:fontFamily">@font/poppins_medium</item>
     </style>
@@ -19,6 +28,10 @@
     <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">22sp</item>
         <item name="android:fontFamily">@font/poppins_medium</item>
+    </style>
+
+    <style name="EditTextTheme" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="colorPrimary">@color/colorPrimary</item>
     </style>
 
 </resources>
