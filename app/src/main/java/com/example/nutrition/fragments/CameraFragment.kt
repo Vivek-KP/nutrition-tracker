@@ -11,21 +11,38 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Environment
 import android.provider.MediaStore
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import com.example.nutrition.HitsItem
+import com.example.nutrition.Response
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.gson.Gson
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.automl.AutoMLImageLabelerLocalModel
 import com.google.mlkit.vision.label.automl.AutoMLImageLabelerOptions
 import kotlinx.android.synthetic.main.fragment_camera.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.Call
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 private const val REQUEST_CODE = 42
 private const val REQUEST_CODE_G = 43
 private const val FILE_NAME = "photo.jpg"
 private lateinit var photoFile: File
+lateinit var mDatabase: DatabaseReference
 
 class CameraFragment : Fragment() {
 
@@ -99,6 +116,30 @@ class CameraFragment : Fragment() {
                         val index = label.index
                         result.append(text + "  " + confidence)
                     }
+
+                    val foodItem = result.getText().substring(0, result.getText().indexOf(" "))
+                    if (foodItem.contains("_")) {
+                        foodItem.replace("_", "")
+                    }
+
+                    result.setText("")
+
+                    val request = Request.Builder()
+                        .url("https://api.nutritionix.com/v1_1/search/" + foodItem + "?results=0:1&fields=item_name,nf_calories,nf_total_fat,nf_saturated_fat,nf_cholesterol,nf_total_carbohydrate,nf_protein,nf_sodium,nf_sugars&appId=ff63be37&appKey=d6e40fb0375d22e831782c05f672aac1")
+                        .build()
+
+                    val api: Call = OkHttpClient().newCall(request)
+
+                    GlobalScope.launch {
+                        val response = withContext(Dispatchers.IO) { api.execute() }
+                        val data = Gson().fromJson(
+                            response.body?.string(), Response::class.java
+                        )
+                        launch(Dispatchers.Main) {
+                            bindFoodData(data.hits)
+                        }
+                    }
+
                 }
 
                 .addOnFailureListener { e ->
@@ -117,12 +158,45 @@ class CameraFragment : Fragment() {
                         val index = label.index
                         gResult.append(text + "  " + confidence)
                     }
+
                     val foodItem = gResult.getText().substring(0, gResult.getText().indexOf(" "))
+                    if (foodItem.contains("_")) {
+                        foodItem.replace("_", "")
+                    }
+
+                    gResult.setText("")
+
+                    val request = Request.Builder()
+                        .url("https://api.nutritionix.com/v1_1/search/" + foodItem + "?results=0:1&fields=item_name,nf_calories,nf_total_fat,nf_saturated_fat,nf_cholesterol,nf_total_carbohydrate,nf_protein,nf_sodium,nf_sugars&appId=ff63be37&appKey=d6e40fb0375d22e831782c05f672aac1")
+                        .build()
+
+                    val api: Call = OkHttpClient().newCall(request)
+
+                    GlobalScope.launch {
+                        val response = withContext(Dispatchers.IO) { api.execute() }
+                        val data = Gson().fromJson(
+                            response.body?.string(), Response::class.java
+                        )
+                        launch(Dispatchers.Main) {
+                            bindFoodData(data.hits)
+                        }
+                    }
                 }
+
                 .addOnFailureListener { e ->
                 }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
     }
+
+    private fun bindFoodData(hits: List<HitsItem?>?) {
+        val sdf = SimpleDateFormat("dd-M-yyyy hh:mm:ss")
+        val currentDate = sdf.format(Date())
+        mDatabase = FirebaseDatabase.getInstance().reference.child("Users")
+            .child(FirebaseAuth.getInstance().currentUser?.uid.toString()).child("Food_Items")
+        mDatabase.child(currentDate).setValue(hits?.get(0)?.fields)
+        txt_food.setText(hits?.get(0)?.fields?.itemName)
+    }
+
 }

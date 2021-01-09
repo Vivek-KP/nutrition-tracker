@@ -22,6 +22,12 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/appToolbar"
+        android:background="@drawable/toolbar_dropshadow" />
+
     <FrameLayout
         android:id="@+id/fl_wrapper"
         android:layout_width="match_parent"

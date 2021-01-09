@@ -26,7 +26,7 @@
     </style>
 
     <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-        <item name="android:textSize">22sp</item>
+        <item name="android:textSize">25sp</item>
         <item name="android:fontFamily">@font/poppins_medium</item>
     </style>
 
